@@ -16,7 +16,7 @@ app.post("/reading", (req, res) => {
   }
 
   lastReading = data;
-  console.log("📡 Otrzymano dane:", data);
+  console.log("Otrzymano dane:", data);
   res.status(200).send("Dane odebrane OK!");
 });
 
@@ -55,7 +55,7 @@ app.get('/reading', (req, res) => {
           </style>
         </head>
         <body>
-          <h1>🌡️ Odczyt z ESP32</h1>
+          <h1>Odczyt z ESP32</h1>
           <div class="reading">
             <div class="item"><b>Temperatura:</b> ${lastReading.temperature.toFixed(2)} °C</div>
             <div class="item"><b>Wilgotność:</b> ${lastReading.humidity.toFixed(1)} %</div>
@@ -71,7 +71,7 @@ app.get('/reading', (req, res) => {
     res.send(`
       <html>
         <head><meta charset="UTF-8"><title>Brak danych</title></head>
-        <body><h2>🚫 System nie odebrał jeszcze żadnych odczytów!</h2></body>
+        <body><h2>System nie odebrał jeszcze żadnych odczytów!</h2></body>
       </html>
     `);
   }
