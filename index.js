@@ -14,7 +14,7 @@ app.post("/reading", (req, res) => {
   if (!data || Object.keys(data).length === 0) {
     return res.status(400).send("Brak danych w żądaniu!");
   }
-
+  data.timestamp = new Date().toLocaleString();
   lastReading = data;
   console.log("Otrzymano dane:", data);
   res.status(200).send("Dane odebrane OK!");
