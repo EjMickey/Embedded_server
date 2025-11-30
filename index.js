@@ -1,5 +1,9 @@
-import express from "express";
-import cors from "cors";
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+const bcrypt = require("bcrypt");
+const admin = require("firebase-admin");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,16 +13,99 @@ app.use(express.json());
 
 let lastReading = null;
 
-app.post("/reading", (req, res) => {
-  const data = req.body;
-  if (!data || Object.keys(data).length === 0) {
-    return res.status(400).send("Brak danych w żądaniu!");
+const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount);
+});
+
+const db = admin.firestore();
+
+app.post("/reading", async (req, res) => {
+  try {
+    const { deviceId, password, temperature, humidity, pressure, altitude, soil } = req.body;
+
+    if (!deviceId || !password) {
+      return res.status(400).json({ error: "Missing deviceId or password" });
+    }
+
+    const deviceDoc = await db.collection("devices").doc(deviceId).get();
+    if (!deviceDoc.exists) {
+      return res.status(404).json({ error: "Device not found" });
+    }
+
+    const deviceData = deviceDoc.data();
+
+    const passwordOK = await bcrypt.compare(password, deviceData.passwordHash);
+    if (!passwordOK) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+
+    const reading = {
+      temperature,
+      humidity,
+      pressure,
+      altitude,
+      soil,
+      timestamp: new Date().toISOString()
+    };
+
+    lastReading = reading;
+
+    const timestampId = Date.now().toString();
+    await db
+      .collection("readings")
+      .doc(deviceId)
+      .collection("entries")
+      .doc(timestampId)
+      .set(reading);
+
+    console.log("Zapisano odczyt:", reading);
+
+    return res.status(200).json({ ok: true, message: "Reading saved" });
+
+  } catch (err) {
+    console.error("Reading error:", err);
+    res.status(500).json({ error: "Server error" });
   }
   data.timestamp = new Date().toLocaleString();
   lastReading = data;
   console.log("Otrzymano dane:", data);
   res.status(200).send("Dane odebrane OK!");
 });
+
+
+
+async function registerDevice(req, res) {
+  try {
+    const { deviceId, password } = req.body;
+
+    if (!deviceId || !password) {
+      return res.status(400).json({ error: "Missing deviceId or password" });
+    }
+
+    const docRef = db.collection("devices").doc(deviceId);
+    const doc = await docRef.get();
+
+    if (doc.exists) {
+      return res.status(400).json({ error: "Device already exists" });
+    }
+
+    const hash = await bcrypt.hash(password, 12);
+
+    await docRef.set({
+      passwordHash: hash,
+      createdAt: new Date().toISOString()
+    });
+
+    res.json({ ok: true, message: "Device registered successfully" });
+  } catch (err) {
+    console.error("Error registering device:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+}
+
+app.post("/registerDevice", registerDevice);
 
 app.get('/reading', (req, res) => {
   if (lastReading) {
