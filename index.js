@@ -21,6 +21,13 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+function removeUndefined(obj) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, v]) => v !== undefined)
+  );
+}
+
+
 app.post("/reading", async (req, res) => {
   try {
     const { deviceId, password, temperature, humidity, pressure, altitude, soil } = req.body;
@@ -49,6 +56,8 @@ app.post("/reading", async (req, res) => {
       soil,
       timestamp: new Date().toISOString()
     };
+
+    reading = removeUndefined(reading);
 
     lastReading = reading;
 
