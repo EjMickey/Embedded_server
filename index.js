@@ -48,7 +48,7 @@ app.post("/reading", async (req, res) => {
       return res.status(401).json({ error: "Invalid password" });
     }
 
-    const reading = {
+    let reading = {
       temperature,
       humidity,
       pressure,
