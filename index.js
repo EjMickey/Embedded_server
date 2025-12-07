@@ -64,7 +64,7 @@ app.post("/reading", async (req, res) => {
             temperatureAir,
             pressureAir,
             sunlight,
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
+            date: admin.firestore.FieldValue.serverTimestamp()
         };
 
         reading = removeUndefined(reading);
