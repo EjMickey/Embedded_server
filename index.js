@@ -146,7 +146,7 @@ app.get('/reading', (req, res) => {
         const tempAir = lastReading.temperatureAir !== undefined ? lastReading.temperatureAir.toFixed(2) + " °C" : "brak danych";
         const press = lastReading.pressureAir !== undefined ? lastReading.pressureAir.toFixed(1) + " hPa" : "brak danych";
         const sun = lastReading.sunlight !== undefined ? lastReading.sunlight + " lx" : "brak danych";
-        const timestamp = lastReading.timestamp || "brak danych";
+        const date = lastReading.timestamp || "brak danych";
 
         res.send(`
       <html>
