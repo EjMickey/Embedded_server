@@ -42,11 +42,11 @@ app.post("/reading", async (req, res) => {
             sunlight
         } = req.body;
 
-        if (!deviceId || !password) {
+        if (!station_id || !password) {
             return res.status(400).json({ error: "Missing deviceId or password" });
         }
 
-        const deviceDoc = await db.collection("stations").doc(deviceId).get();
+        const deviceDoc = await db.collection("stations").doc(station_id).get();
         if (!deviceDoc.exists) {
             return res.status(404).json({ error: "Device not found" });
         }
@@ -91,7 +91,7 @@ app.post("/reading", async (req, res) => {
         }
 
         try {
-            await handleMeasurement(db, messaging, admin, measurementId, deviceId, reading);
+            await handleMeasurement(db, messaging, admin, measurementId, station_id, reading);
         } catch (err) {
             console.log("Błąd przy obsłudze alarmów: " + err);
         }
@@ -107,14 +107,14 @@ app.post("/reading", async (req, res) => {
 async function registerDevice(req, res) {
     try {
         console.log("Register device requested");
-        const { deviceId, password, name, ownerId } = req.body;
+        const { station_id, password, name, ownerId } = req.body;
 
-        if (!deviceId || !password || !name || !ownerId) {
+        if (!station_id || !password || !name || !ownerId) {
             console.log("Malformed request");
             return res.status(400).json({ error: "Malformed body" });
         }
 
-        const docRef = db.collection("stations").doc(deviceId);
+        const docRef = db.collection("stations").doc(station_id);
         const doc = await docRef.get();
 
         if (doc.exists) {
