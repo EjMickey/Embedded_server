@@ -59,6 +59,7 @@ app.post("/reading", async (req, res) => {
         }
 
         let reading = {
+            deviceId,
             humidityAir,
             humiditySoil,
             temperatureAir,
