@@ -33,7 +33,7 @@ function removeUndefined(obj) {
 app.post("/reading", async (req, res) => {
     try {
         const {
-            deviceId,
+            station_id,
             password,
             humidityAir,
             humiditySoil,
@@ -59,7 +59,7 @@ app.post("/reading", async (req, res) => {
         }
 
         let reading = {
-            deviceId,
+            station_id,
             humidityAir,
             humiditySoil,
             temperatureAir,
